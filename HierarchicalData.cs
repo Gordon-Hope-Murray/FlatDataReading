@@ -223,17 +223,20 @@ namespace aiCorporation.NewImproved
             }
         }
 
-        public ClientList(ClientListBuilder clClientList)
-        {
-            int nCount;
+        //public ClientList(ClientListBuilder clClientList)
+        //{
+        //    int nCount;
 
-            m_lcClientList = new List<Client>();
+        //    m_lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < clClientList.Count; nCount++)
-            {
-                m_lcClientList.Add(clClientList[nCount].ToClient());
-            }
-        }
+        //    foreach (clClientList.)
+
+
+        //    for (nCount = 0; nCount < clClientList.Count; nCount++)
+        //    {
+        //        m_lcClientList.Add(clClientList[nCount].ToClient());
+        //    }
+        //}
 
         public ClientList(List<Client> lcClientList)
         {
@@ -395,42 +398,28 @@ namespace aiCorporation.NewImproved
     }
     public class SalesAgentListBuilder
     {
-        private List<SalesAgentBuilder> m_lsaSalesAgentList;
+        private Dictionary<string,SalesAgentBuilder> m_lsaSalesAgentList;
 
         public int Count { get { return (m_lsaSalesAgentList.Count); } }
 
-        public SalesAgentBuilder this[int nIndex]
-        {
-            get
-            {
-                if (nIndex < 0 ||
-                    nIndex >= m_lsaSalesAgentList.Count)
-                {
-                    throw new Exception("Array index out of bounds");
-                }
-                return (m_lsaSalesAgentList[nIndex]);
-            }
-        }
+        //public SalesAgentBuilder this[int nIndex]
+        //{
+        //    get
+        //    {
+        //        if (nIndex < 0 ||
+        //            nIndex >= m_lsaSalesAgentList.Count)
+        //        {
+        //            throw new Exception("Array index out of bounds");
+        //        }
+        //        return m_lsaSalesAgentList[nIndex];
+        //    }
+        //}
 
         public SalesAgentBuilder this[string szSalesAgentEmailAddress]
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                SalesAgentBuilder saSalesAgent = null;
-
-                while (!boFound &&
-                       nCount < m_lsaSalesAgentList.Count)
-                {
-                    if (m_lsaSalesAgentList[nCount].SalesAgentEmailAddress == szSalesAgentEmailAddress)
-                    {
-                        boFound = true;
-                        saSalesAgent = m_lsaSalesAgentList[nCount];
-                    }
-                    nCount++;
-                }
-                return (saSalesAgent);
+                return m_lsaSalesAgentList[szSalesAgentEmailAddress];
             }
         }
 
@@ -438,26 +427,36 @@ namespace aiCorporation.NewImproved
         {
             if (saSalesAgent != null)
             {
-                m_lsaSalesAgentList.Add(saSalesAgent);
+                m_lsaSalesAgentList.Add(saSalesAgent.SalesAgentEmailAddress, saSalesAgent);
             }
+        }
+
+        public bool ContainsAgent(string szSalesAgentEmailAddress)
+        {
+            return m_lsaSalesAgentList.ContainsKey(szSalesAgentEmailAddress);
         }
 
         public SalesAgentListBuilder()
         {
-            m_lsaSalesAgentList = new List<SalesAgentBuilder>();
+            m_lsaSalesAgentList = new Dictionary<string, SalesAgentBuilder>();
         }
 
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
             List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
+            //int nCount = 0;
 
             lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            foreach (KeyValuePair<string,SalesAgentBuilder>  agent in m_lsaSalesAgentList)
             {
-                lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount].ToSalesAgent());
+                lsaSalesAgentList.Add(agent.Value.ToSalesAgent());
             }
+
+            //for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            //{
+            //    lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount].ToSalesAgent());
+            //}
 
             return (lsaSalesAgentList);
         }
@@ -497,42 +496,43 @@ namespace aiCorporation.NewImproved
     }
     public class ClientListBuilder
     {
-        private List<ClientBuilder> m_lcClientList;
+        private Dictionary<string,ClientBuilder> m_lcClientList;
 
         public int Count { get { return (m_lcClientList.Count); } }
 
-        public ClientBuilder this[int nIndex]
-        {
-            get
-            {
-                if (nIndex < 0 ||
-                    nIndex >= m_lcClientList.Count)
-                {
-                    throw new Exception("Array index out of bounds");
-                }
-                return (m_lcClientList[nIndex]);
-            }
-        }
+        //public ClientBuilder this[int nIndex]
+        //{
+        //    get
+        //    {
+        //        if (nIndex < 0 ||
+        //            nIndex >= m_lcClientList.Count)
+        //        {
+        //            throw new Exception("Array index out of bounds");
+        //        }
+        //        return (m_lcClientList[nIndex]);
+        //    }
+        //}
 
         public ClientBuilder this[string szClientIdentifier]
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                ClientBuilder cClient = null;
 
-                while (!boFound &&
-                       nCount < m_lcClientList.Count)
-                {
-                    if (m_lcClientList[nCount].ClientIdentifier == szClientIdentifier)
-                    {
-                        boFound = true;
-                        cClient = m_lcClientList[nCount];
-                    }
-                    nCount++;
-                }
-                return (cClient);
+                //int nCount = 0;
+                //bool boFound = false;
+                //ClientBuilder cClient = null;
+
+                //while (!boFound &&
+                //       nCount < m_lcClientList.Count)
+                //{
+                //    if (m_lcClientList[nCount].ClientIdentifier == szClientIdentifier)
+                //    {
+                //        boFound = true;
+                //        cClient = m_lcClientList[nCount];
+                //    }
+                //    nCount++;
+                //}
+                return m_lcClientList[szClientIdentifier];
             }
         }
 
@@ -540,28 +540,32 @@ namespace aiCorporation.NewImproved
         {
             if (cClient != null)
             {
-                m_lcClientList.Add(cClient);
+                m_lcClientList.Add(cClient.ClientIdentifier, cClient);
             }
         }
 
         public ClientListBuilder()
         {
-            m_lcClientList = new List<ClientBuilder>();
+            m_lcClientList = new Dictionary<string, ClientBuilder>();
         }
 
         public List<Client> GetListOfClientObjects()
         {
             List<Client> lcClientList = null;
-            int nCount = 0;
 
             lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            foreach (KeyValuePair<string, ClientBuilder> client in m_lcClientList)
             {
-                lcClientList.Add(m_lcClientList[nCount].ToClient());
+                lcClientList.Add(client.Value.ToClient());
             }
 
             return (lcClientList);
+        }
+
+        public bool ContainsClient(string clientIdentifier)
+        {
+            return m_lcClientList.ContainsKey(clientIdentifier);
         }
     }
 
@@ -604,7 +608,7 @@ namespace aiCorporation.NewImproved
     }
     public class BankAccountListBuilder
     {
-        private List<BankAccountBuilder> m_lbaBankAccountList;
+        private Dictionary<int,BankAccountBuilder> m_lbaBankAccountList;
 
         public int Count { get { return (m_lbaBankAccountList.Count); } }
 
@@ -623,58 +627,70 @@ namespace aiCorporation.NewImproved
 
         public BankAccountBuilder GetBankAccount(string szBankName, string szAccountNumber, string szSortCode)
         {
-            int nCount = 0;
-            bool boFound = false;
-            BankAccountBuilder baBankAccount = null;
+            Tuple<string, string, string> bankAccount = new Tuple<string, string, string>(szBankName, szAccountNumber, szSortCode);
 
-            while (!boFound &&
-                   nCount < m_lbaBankAccountList.Count)
+            int hashcode = bankAccount.GetHashCode();
+
+            if (m_lbaBankAccountList.ContainsKey(hashcode))
             {
-                if (m_lbaBankAccountList[nCount].BankName == szBankName &&
-                    m_lbaBankAccountList[nCount].AccountNumber == szAccountNumber &&
-                    m_lbaBankAccountList[nCount].SortCode == szSortCode)
-                {
-                    boFound = true;
-                    baBankAccount = m_lbaBankAccountList[nCount];
-                }
-                nCount++;
+                return m_lbaBankAccountList[hashcode];
             }
-            return (baBankAccount);
+            else return null;
+            //return m_lbaBankAccountList[hashcode];
+
+            //int nCount = 0;
+            //bool boFound = false;
+            //BankAccountBuilder baBankAccount = null;
+
+            //while (!boFound &&
+            //       nCount < m_lbaBankAccountList.Count)
+            //{
+            //    if (m_lbaBankAccountList[nCount].BankName == szBankName &&
+            //        m_lbaBankAccountList[nCount].AccountNumber == szAccountNumber &&
+            //        m_lbaBankAccountList[nCount].SortCode == szSortCode)
+            //    {
+            //        boFound = true;
+            //        baBankAccount = m_lbaBankAccountList[nCount];
+            //    }
+            //    nCount++;
+            //}
+            //return (baBankAccount);
         }
 
         public void Add(BankAccountBuilder baBankAccount)
         {
             if (baBankAccount != null)
             {
-                m_lbaBankAccountList.Add(baBankAccount);
+                Tuple<string, string, string> bankAccount = new Tuple<string, string, string>(baBankAccount.BankName, baBankAccount.AccountNumber, baBankAccount.SortCode);
+
+                int hashcode = bankAccount.GetHashCode();
+
+                m_lbaBankAccountList.Add(hashcode, baBankAccount);
             }
         }
 
-        public void AddRange(List<BankAccountBuilder> baBankAccount)
-        {
-            if (baBankAccount != null)
-            {
-                m_lbaBankAccountList.AddRange(baBankAccount);
-            }
-        }
+        //public void AddRange(List<BankAccountBuilder> baBankAccount)
+        //{
+        //    if (baBankAccount != null)
+        //    {
+        //        m_lbaBankAccountList.AddRange(baBankAccount);
+        //    }
+        //}
 
         public BankAccountListBuilder()
         {
-            m_lbaBankAccountList = new List<BankAccountBuilder>();
+            m_lbaBankAccountList = new Dictionary<int, BankAccountBuilder>();
         }
 
         public List<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
+            List<BankAccount> lbaBankAccountList = new List<BankAccount>();
 
-            lbaBankAccountList = new List<BankAccount>();
-
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
+            foreach(KeyValuePair<int, BankAccountBuilder> bankAccount in m_lbaBankAccountList)
             {
-                lbaBankAccountList.Add(m_lbaBankAccountList[nCount].ToBankAccount());
+                lbaBankAccountList.Add(m_lbaBankAccountList[bankAccount.Key].ToBankAccount());
             }
-
+  
             return (lbaBankAccountList);
         }
     }

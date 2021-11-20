@@ -192,6 +192,66 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
+            SalesAgentList salReturnSalesAgentList;
+            SalesAgentListBuilder salSalesAgentList;
+            SalesAgentBuilder saCurrentSalesAgent;
+            ClientBuilder cClient;
+            BankAccountBuilder baBankAccount;
+            int nCount;
+
+            salSalesAgentList = new SalesAgentListBuilder();
+
+            for (nCount = 0; nCount < m_lsafrSalesAgentFileRecordList.Count; nCount++)
+            {
+                if (salSalesAgentList.ContainsAgent(m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress))
+                {
+                    saCurrentSalesAgent = salSalesAgentList[m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress];
+                    
+                }
+                else
+                {
+                    saCurrentSalesAgent = new SalesAgentBuilder();
+                    saCurrentSalesAgent.SalesAgentEmailAddress = m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress;
+                    saCurrentSalesAgent.SalesAgentName = m_lsafrSalesAgentFileRecordList[nCount].SalesAgentName;
+                    salSalesAgentList.Add(saCurrentSalesAgent);
+                }
+
+                if (saCurrentSalesAgent.ClientList.ContainsClient(m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier) )
+                {
+                    cClient = saCurrentSalesAgent.ClientList[m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier];
+                }
+                else
+                {
+                    cClient = new ClientBuilder();
+                    cClient.ClientIdentifier = m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier;
+                    cClient.ClientName = m_lsafrSalesAgentFileRecordList[nCount].ClientName;
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+                }
+
+                baBankAccount = cClient.BankAccountList.GetBankAccount(m_lsafrSalesAgentFileRecordList[nCount].BankName, m_lsafrSalesAgentFileRecordList[nCount].AccountNumber, m_lsafrSalesAgentFileRecordList[nCount].SortCode);
+
+                if (baBankAccount == null)
+                {
+                    baBankAccount = new BankAccountBuilder();
+                    baBankAccount.BankName = m_lsafrSalesAgentFileRecordList[nCount].BankName;
+                    baBankAccount.AccountNumber = m_lsafrSalesAgentFileRecordList[nCount].AccountNumber;
+                    baBankAccount.SortCode = m_lsafrSalesAgentFileRecordList[nCount].SortCode;
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+
+                baBankAccount.Currency = m_lsafrSalesAgentFileRecordList[nCount].Currency;
+            }
+
+            salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+
+            return (salReturnSalesAgentList);
+        }
+
+        /************************************************************/
+        /* THIS IS THE FUNCTION THAT WE WOULD LIKE YOU TO IMPLEMENT */
+        /************************************************************/
+        public SalesAgentList ToSalesAgentListRandom()
+        {
             SalesAgentListBuilder salSalesAgentList = new SalesAgentListBuilder();
 
             var salesAgents = from salesAgent in m_lsafrSalesAgentFileRecordList
@@ -216,11 +276,13 @@ namespace aiCorporation.NewImproved
                 currentSalesAgent.SalesAgentEmailAddress = agent.SalesAgentEmailAddress;
                 currentSalesAgent.SalesAgentName = agent.SalesAgentName;
 
-                var agentClient = from client in salesAgentClients where currentSalesAgent.SalesAgentName == client.SalesAgentName 
+                var agentClient = from client in salesAgentClients
+                                  where currentSalesAgent.SalesAgentName == client.SalesAgentName
                                   select new { client.ClientIdentifier, client.ClientName };
 
-                var agentClientAccounts = from client in m_lsafrSalesAgentFileRecordList where currentSalesAgent.SalesAgentName == client.SalesAgentName
-                                          select new { client.ClientIdentifier, client.ClientName, client.BankName , client.AccountNumber, client.SortCode, client.Currency };
+                var agentClientAccounts = from client in m_lsafrSalesAgentFileRecordList
+                                          where currentSalesAgent.SalesAgentName == client.SalesAgentName
+                                          select new { client.ClientIdentifier, client.ClientName, client.BankName, client.AccountNumber, client.SortCode, client.Currency };
 
                 foreach (var client in agentClient)
                 {
@@ -228,12 +290,13 @@ namespace aiCorporation.NewImproved
                     clientBuilder.ClientIdentifier = client.ClientIdentifier;
                     clientBuilder.ClientName = client.ClientName;
 
-                    var accounts = from account in agentClientAccounts where account.ClientIdentifier == client.ClientIdentifier
-                                   select new { account.BankName , account.AccountNumber, account.SortCode, account.Currency };
+                    var accounts = from account in agentClientAccounts
+                                   where account.ClientIdentifier == client.ClientIdentifier
+                                   select new { account.BankName, account.AccountNumber, account.SortCode, account.Currency };
 
                     foreach (var account in accounts)
                     {
-                        BankAccountBuilder bankAccountBuilder = new BankAccountBuilder() {BankName = account.BankName, AccountNumber = account.AccountNumber, Currency = account.Currency , SortCode = account.SortCode };
+                        BankAccountBuilder bankAccountBuilder = new BankAccountBuilder() { BankName = account.BankName, AccountNumber = account.AccountNumber, Currency = account.Currency, SortCode = account.SortCode };
                         clientBuilder.BankAccountList.Add(bankAccountBuilder);
                     }
 
