@@ -195,7 +195,7 @@ namespace aiCorporation.NewImproved
             SalesAgentListBuilder salSalesAgentList = new SalesAgentListBuilder();
 
             var salesAgents = from salesAgent in m_lsafrSalesAgentFileRecordList
-                              select new SalesAgentBuilder() { SalesAgentName = salesAgent.SalesAgentName, SalesAgentEmailAddress = salesAgent.SalesAgentEmailAddress };
+                              select new { salesAgent.SalesAgentName, salesAgent.SalesAgentEmailAddress };
             var agents = salesAgents.Distinct();
 
             var salesAgentClients = from salesAgentClient in m_lsafrSalesAgentFileRecordList
@@ -228,10 +228,14 @@ namespace aiCorporation.NewImproved
                     clientBuilder.ClientIdentifier = client.ClientIdentifier;
                     clientBuilder.ClientName = client.ClientName;
 
-                    List<BankAccountBuilder> accounts = (List<BankAccountBuilder>)(from account in agentClientAccounts where account.ClientIdentifier == client.ClientIdentifier
-                                   select new BankAccountBuilder() {BankName = account.BankName, AccountNumber = account.AccountNumber, SortCode = account.SortCode, Currency= account.Currency });
+                    var accounts = from account in agentClientAccounts where account.ClientIdentifier == client.ClientIdentifier
+                                   select new { account.BankName , account.AccountNumber, account.SortCode, account.Currency };
 
-                    clientBuilder.BankAccountList.AddRange(accounts);
+                    foreach (var account in accounts)
+                    {
+                        BankAccountBuilder bankAccountBuilder = new BankAccountBuilder() {BankName = account.BankName, AccountNumber = account.AccountNumber, Currency = account.Currency , SortCode = account.SortCode };
+                        clientBuilder.BankAccountList.Add(bankAccountBuilder);
+                    }
 
                     currentSalesAgent.ClientList.Add(clientBuilder);
                 }
