@@ -194,52 +194,58 @@ namespace aiCorporation.NewImproved
         {
             SalesAgentList salReturnSalesAgentList;
             SalesAgentListBuilder salSalesAgentList;
-            SalesAgentBuilder saCurrentSalesAgent;
-            ClientBuilder cClient;
-            BankAccountBuilder baBankAccount;
+            SalesAgentBuilder saCurrentSalesAgent = null;
+            ClientBuilder cClient = null;
+            BankAccountBuilder baBankAccount = null;
             int nCount;
 
             salSalesAgentList = new SalesAgentListBuilder();
 
             for (nCount = 0; nCount < m_lsafrSalesAgentFileRecordList.Count; nCount++)
             {
-                if (salSalesAgentList.ContainsAgent(m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress))
-                {
-                    saCurrentSalesAgent = salSalesAgentList[m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress];
-                    
-                }
-                else
+                if (saCurrentSalesAgent == null 
+                    || saCurrentSalesAgent.SalesAgentEmailAddress != m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress 
+                    && salSalesAgentList.ContainsAgent(m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress) == false)
                 {
                     saCurrentSalesAgent = new SalesAgentBuilder();
                     saCurrentSalesAgent.SalesAgentEmailAddress = m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress;
                     saCurrentSalesAgent.SalesAgentName = m_lsafrSalesAgentFileRecordList[nCount].SalesAgentName;
                     salSalesAgentList.Add(saCurrentSalesAgent);
                 }
-
-                if (saCurrentSalesAgent.ClientList.ContainsClient(m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier) )
+                else if (saCurrentSalesAgent.SalesAgentEmailAddress != m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress)
                 {
-                    cClient = saCurrentSalesAgent.ClientList[m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier];
+                    saCurrentSalesAgent = salSalesAgentList[m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress];
                 }
-                else
+
+                if (cClient == null 
+                    || cClient.ClientIdentifier != m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier 
+                    && salSalesAgentList[saCurrentSalesAgent.SalesAgentEmailAddress].ClientList.ContainsClient(m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier) == false)
                 {
                     cClient = new ClientBuilder();
                     cClient.ClientIdentifier = m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier;
                     cClient.ClientName = m_lsafrSalesAgentFileRecordList[nCount].ClientName;
                     saCurrentSalesAgent.ClientList.Add(cClient);
                 }
+                else if (cClient.ClientIdentifier != m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier)
+                {
+                    cClient = saCurrentSalesAgent.ClientList[m_lsafrSalesAgentFileRecordList[nCount].ClientIdentifier];
+                }
 
-                baBankAccount = cClient.BankAccountList.GetBankAccount(m_lsafrSalesAgentFileRecordList[nCount].BankName, m_lsafrSalesAgentFileRecordList[nCount].AccountNumber, m_lsafrSalesAgentFileRecordList[nCount].SortCode);
-
-                if (baBankAccount == null)
+                if (baBankAccount == null 
+                    || baBankAccount.GetHashCode() != BankAccountBuilder.GetHashCode(m_lsafrSalesAgentFileRecordList[nCount].BankName, m_lsafrSalesAgentFileRecordList[nCount].AccountNumber, m_lsafrSalesAgentFileRecordList[nCount].SortCode)
+                    && cClient.BankAccountList.ContainsBankAccount(m_lsafrSalesAgentFileRecordList[nCount].BankName, m_lsafrSalesAgentFileRecordList[nCount].AccountNumber, m_lsafrSalesAgentFileRecordList[nCount].SortCode) == false)
                 {
                     baBankAccount = new BankAccountBuilder();
                     baBankAccount.BankName = m_lsafrSalesAgentFileRecordList[nCount].BankName;
                     baBankAccount.AccountNumber = m_lsafrSalesAgentFileRecordList[nCount].AccountNumber;
                     baBankAccount.SortCode = m_lsafrSalesAgentFileRecordList[nCount].SortCode;
+                    baBankAccount.Currency = m_lsafrSalesAgentFileRecordList[nCount].Currency;
                     cClient.BankAccountList.Add(baBankAccount);
                 }
-
-                baBankAccount.Currency = m_lsafrSalesAgentFileRecordList[nCount].Currency;
+                else if (baBankAccount.GetHashCode() != BankAccountBuilder.GetHashCode(m_lsafrSalesAgentFileRecordList[nCount].BankName, m_lsafrSalesAgentFileRecordList[nCount].AccountNumber, m_lsafrSalesAgentFileRecordList[nCount].SortCode))
+                {
+                    baBankAccount = cClient.BankAccountList.GetBankAccount(m_lsafrSalesAgentFileRecordList[nCount].BankName, m_lsafrSalesAgentFileRecordList[nCount].AccountNumber, m_lsafrSalesAgentFileRecordList[nCount].SortCode);
+                }
             }
 
             salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
@@ -247,81 +253,10 @@ namespace aiCorporation.NewImproved
             return (salReturnSalesAgentList);
         }
 
-        /************************************************************/
-        /* THIS IS THE FUNCTION THAT WE WOULD LIKE YOU TO IMPLEMENT */
-        /************************************************************/
-        public SalesAgentList ToSalesAgentListRandom()
-        {
-            SalesAgentListBuilder salSalesAgentList = new SalesAgentListBuilder();
-
-            var salesAgents = from salesAgent in m_lsafrSalesAgentFileRecordList
-                              select new { salesAgent.SalesAgentName, salesAgent.SalesAgentEmailAddress };
-            var agents = salesAgents.Distinct();
-
-            var salesAgentClients = from salesAgentClient in m_lsafrSalesAgentFileRecordList
-                                    select new { salesAgentClient.SalesAgentName, salesAgentClient.SalesAgentEmailAddress, salesAgentClient.ClientIdentifier, salesAgentClient.ClientName };
-
-            //var clientList = from client in m_lsafrSalesAgentFileRecordList
-            //                 select new { client.ClientIdentifier, client.ClientName };
-            //var clients = clientList.Distinct();
-
-            //var bankAccountList = from bankAccount in m_lsafrSalesAgentFileRecordList
-            //                      select new { bankAccount.ClientIdentifier, bankAccount.AccountNumber, bankAccount.SortCode, bankAccount.Currency };
-            //var result = clientList.Distinct();
-
-
-            foreach (var agent in agents)
-            {
-                SalesAgentBuilder currentSalesAgent = new SalesAgentBuilder() { SalesAgentEmailAddress = agent.SalesAgentEmailAddress };
-                currentSalesAgent.SalesAgentEmailAddress = agent.SalesAgentEmailAddress;
-                currentSalesAgent.SalesAgentName = agent.SalesAgentName;
-
-                var agentClient = from client in salesAgentClients
-                                  where currentSalesAgent.SalesAgentName == client.SalesAgentName
-                                  select new { client.ClientIdentifier, client.ClientName };
-
-                var agentClientAccounts = from client in m_lsafrSalesAgentFileRecordList
-                                          where currentSalesAgent.SalesAgentName == client.SalesAgentName
-                                          select new { client.ClientIdentifier, client.ClientName, client.BankName, client.AccountNumber, client.SortCode, client.Currency };
-
-                foreach (var client in agentClient)
-                {
-                    ClientBuilder clientBuilder = new ClientBuilder();
-                    clientBuilder.ClientIdentifier = client.ClientIdentifier;
-                    clientBuilder.ClientName = client.ClientName;
-
-                    var accounts = from account in agentClientAccounts
-                                   where account.ClientIdentifier == client.ClientIdentifier
-                                   select new { account.BankName, account.AccountNumber, account.SortCode, account.Currency };
-
-                    foreach (var account in accounts)
-                    {
-                        BankAccountBuilder bankAccountBuilder = new BankAccountBuilder() { BankName = account.BankName, AccountNumber = account.AccountNumber, Currency = account.Currency, SortCode = account.SortCode };
-                        clientBuilder.BankAccountList.Add(bankAccountBuilder);
-                    }
-
-                    currentSalesAgent.ClientList.Add(clientBuilder);
-                }
-
-                salSalesAgentList.Add(currentSalesAgent);
-            }
-
-            return new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
-        }
-
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
         {
-            int nCount = 0;
-
             m_lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
-
-            if (lsafrSalesAgentFileRecordList != null)
-            {
-                for (nCount = 0; nCount < lsafrSalesAgentFileRecordList.Count; nCount++)
-                {
-                    m_lsafrSalesAgentFileRecordList.Add(lsafrSalesAgentFileRecordList[nCount]);
-                }
-            }
+            m_lsafrSalesAgentFileRecordList.AddRange(lsafrSalesAgentFileRecordList);
         }
 
         public List<SalesAgentFileRecord> GetListOfSalesAgentFileRecordObjects()
